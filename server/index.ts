@@ -1,4 +1,6 @@
 import http from 'node:http';
+import path from 'node:path';
+import fs from 'node:fs';
 import express from 'express';
 import cors from 'cors';
 import {
@@ -13,17 +15,57 @@ import { setupSocketIO } from './socket';
 
 const app = express();
 const server = http.createServer(app);
-const PORT = process.env.PORT || 5001;
+const PORT = Number(process.env.PORT) || 5001;
+const HOST = process.env.HOST || '0.0.0.0';
 
-// Middleware
-app.use(cors());
+// Configure CORS for Vercel, localhost, and custom origins
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
+  : null;
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (!allowedOrigins || allowedOrigins.includes('*')) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) return callback(null, true);
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Token']
+}));
 app.use(express.json());
+
+// Optional static frontend serving if dist folder exists
+const distPath = path.resolve(process.cwd(), 'dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+}
 
 // Initialize SQLite database
 initDatabase();
 
 // Setup Socket.IO
 const io = setupSocketIO(server);
+
+// Root informational endpoint (serves SPA index if dist exists)
+app.get('/', (req, res) => {
+  const distIndex = path.join(distPath, 'index.html');
+  if (fs.existsSync(distIndex)) {
+    return res.sendFile(distIndex);
+  }
+  res.json({
+    name: 'Salon Queue Management API',
+    status: 'online',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      queue: '/api/queue'
+    }
+  });
+});
 
 // Admin Authentication Middleware
 export function requireAdminAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -941,18 +983,25 @@ app.delete('/api/barbers/:id', requireAdminAuth, (req, res) => {
   }
 });
 
-// Start Server if run directly
-const isMain = Boolean(process.argv[1] && (
+// Start Server if not running in test runner
+const isTest = Boolean(
+  process.env.NODE_ENV === 'test' ||
+  (process.argv[1] && process.argv[1].includes('test'))
+);
+
+const isMain = !isTest && Boolean(
+  !process.argv[1] ||
   process.argv[1].endsWith('server/index.ts') ||
   process.argv[1].endsWith('server\\index.ts') ||
   process.argv[1].endsWith('server/index.js') ||
-  process.argv[1].endsWith('server\\index.js')
-));
+  process.argv[1].endsWith('server\\index.js') ||
+  process.argv[1].includes('server')
+);
 
-if (isMain && process.env.NODE_ENV !== 'test') {
-  server.listen(PORT, () => {
-    console.log(`🚀 Salon Queue Backend running on http://localhost:${PORT}`);
-    console.log(`🏥 Health check ready at http://localhost:${PORT}/api/health`);
+if (isMain) {
+  server.listen(PORT, HOST, () => {
+    console.log(`🚀 Salon Queue Backend running on http://${HOST}:${PORT}`);
+    console.log(`🏥 Health check ready at http://${HOST}:${PORT}/api/health`);
   });
 }
 

@@ -1,11 +1,14 @@
 import { io, Socket } from 'socket.io-client';
 
-// Connect to current origin in production or proxy in dev
-export const socket: Socket = io({
+// Connect to explicit backend URL (e.g. Render) or same-origin in local dev
+const BACKEND_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || undefined;
+
+export const socket: Socket = io(BACKEND_URL, {
   autoConnect: true,
   reconnection: true,
-  reconnectionAttempts: 5,
+  reconnectionAttempts: 10,
   reconnectionDelay: 1000,
+  transports: ['websocket', 'polling'],
 });
 
 socket.on('connect', () => {

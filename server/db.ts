@@ -3,13 +3,22 @@ import path from 'node:path';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 
-// Ensure data folder exists
-const dataDir = path.resolve(process.cwd(), 'server', 'data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+// Determine database file path with persistent volume support (Render Persistent Disks, Docker, etc.)
+const defaultDataDir = path.resolve(process.cwd(), 'server', 'data');
+const customDbPath = process.env.DATABASE_PATH;
+const customDataDir = process.env.DATA_DIR;
+
+const dbPath = customDbPath
+  ? path.resolve(customDbPath)
+  : customDataDir
+  ? path.join(path.resolve(customDataDir), 'salon.db')
+  : path.join(defaultDataDir, 'salon.db');
+
+const targetDir = path.dirname(dbPath);
+if (!fs.existsSync(targetDir)) {
+  fs.mkdirSync(targetDir, { recursive: true });
 }
 
-const dbPath = path.join(dataDir, 'salon.db');
 export const db = new DatabaseSync(dbPath);
 
 export const DEFAULT_INDIAN_SERVICES = [
