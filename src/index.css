@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Noto+Sans+Gujarati:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────
+   ROOT & BASE
+───────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+  --gold: #C9A84C;
+  --ivory: #FAF7F2;
+  --charcoal: #1C1C1E;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', 'Noto Sans Gujarati', system-ui, sans-serif;
+  background-color: #FAF7F2;
+  color: #1C1C1E;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR — warm ivory style
+───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #FAF5EC; }
+::-webkit-scrollbar-thumb { background: #D9C9A8; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
+
+/* ─────────────────────────────────────────────
+   TYPOGRAPHY UTILITIES
+───────────────────────────────────────────── */
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ─────────────────────────────────────────────
+   ANIMATION UTILITIES
+───────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes goldPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.0); }
+  50%       { box-shadow: 0 0 0 8px rgba(201,168,76,0.12); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+.animate-fadeIn    { animation: fadeIn 0.5s ease-out both; }
+.animate-slideUp   { animation: slideUp 0.5s ease-out both; }
+.animate-slideDown { animation: slideDown 0.4s ease-out both; }
+.animate-scaleIn   { animation: scaleIn 0.35s ease-out both; }
+.animate-float     { animation: float 3s ease-in-out infinite; }
+.animate-goldPulse { animation: goldPulse 2s ease-in-out infinite; }
+
+/* Stagger children */
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.20s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.30s; }
+
+/* ─────────────────────────────────────────────
+   COMPONENT LAYER — reusable primitives
+───────────────────────────────────────────── */
+@layer components {
+
+  /* Gold divider */
+  .divider-gold {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-gold-400 to-transparent opacity-60;
+  }
+
+  /* Primary CTA button */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2
+           bg-gold-500 hover:bg-gold-400 active:bg-gold-600
+           text-white font-semibold tracking-wide
+           rounded-xl px-6 py-3.5 min-h-[48px]
+           shadow-gold hover:shadow-warm-md
+           transition-all duration-200 ease-out
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400;
+  }
+
+  .btn-gold:hover { transform: translateY(-1px); }
+  .btn-gold:active { transform: translateY(0); }
+
+  /* Outlined secondary button */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2
+           bg-transparent border border-ivory-300 hover:border-gold-400
+           text-charcoal-700 hover:text-gold-600
+           font-medium rounded-xl px-5 py-3 min-h-[44px]
+           transition-all duration-200 ease-out;
+  }
+
+  /* Warm ivory card */
+  .card {
+    @apply bg-white rounded-2xl border border-ivory-200 shadow-warm;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-200 hover:shadow-warm-md hover:-translate-y-0.5;
+  }
+
+  /* Gold top-bar accent for cards */
+  .card-gold-bar::before {
+    content: '';
+    @apply absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl;
+    background: linear-gradient(90deg, #D4B86A, #C9A84C, #D4B86A);
+  }
+
+  /* Pill badge */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .badge-gold   { @apply badge bg-gold-100 text-gold-700 border border-gold-200; }
+  .badge-green  { @apply badge bg-emerald-50 text-emerald-700 border border-emerald-200; }
+  .badge-amber  { @apply badge bg-amber-50 text-amber-700 border border-amber-200; }
+  .badge-rose   { @apply badge bg-rose-50 text-rose-700 border border-rose-200; }
+  .badge-gray   { @apply badge bg-ivory-100 text-charcoal-500 border border-ivory-200; }
+
+  /* Section label */
+  .section-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-charcoal-400;
+  }
+
+  /* Form input */
+  .input-warm {
+    @apply w-full bg-ivory-50 border border-ivory-200
+           text-charcoal-900 placeholder-charcoal-300
+           rounded-xl px-4 py-3 text-sm
+           focus:outline-none focus:ring-2 focus:ring-gold-400/40 focus:border-gold-400
+           transition-colors duration-150;
+  }
+
+  .input-error {
+    @apply border-rose-300 focus:ring-rose-300/40 focus:border-rose-400;
+  }
+
+  /* Gold shimmer overlay for special elements */
+  .shimmer-gold {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(201,168,76,0.08) 50%,
+      transparent 100%
+    );
+    background-size: 400px 100%;
+    animation: shimmer 2.5s ease infinite;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   STAFF SCREENS — dark professional theme
+   Applied to screens with class="staff-screen"
+───────────────────────────────────────────── */
+.staff-screen {
+  background-color: #1C1C1E;
+  color: #F5EFE6;
+}
+
+/* ─────────────────────────────────────────────
+   ACTIVE SCALE (press feedback)
+───────────────────────────────────────────── */
+.active\:scale-98:active { transform: scale(0.98); }
+.active\:scale-97:active { transform: scale(0.97); }
+
+/* ─────────────────────────────────────────────
+   GOLD GRADIENT BORDER utility
+───────────────────────────────────────────── */
+.border-gradient-gold {
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.border-gradient-gold::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #D4B86A, #C9A84C, #D4B86A);
+  z-index: -1;
+}
+
+/* ─────────────────────────────────────────────
+   PROGRESS RING transition
+───────────────────────────────────────────── */
+circle.progress-ring {
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);
+}
